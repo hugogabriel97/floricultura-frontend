@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Produtos — Floricultura Encanto Verde</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="container header">
+    <div class="logo">🌷 Floricultura Encanto Verde</div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="produtos.html" class="active">Produtos</a>
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html">Contato</a>
+
+      <span id="usuarioLogado" class="usuario-logado" style="display:none;"></span>
+      <a href="login.html" id="linkLogin">Entrar</a>
+      <a href="registro.html" id="linkRegistro">Registrar</a>
+      <button id="btnLogout" class="btn-logout" style="display:none;">Sair</button>
+      <a href="carrinho.html" id="linkCarrinho" style="display:none;">🛒
+        <span id="contador-carrinho" class="contador-carrinho" style="display:none;">0</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="container">
+    <!-- Cabeçalho de seção -->
+    <section class="produtos-header">
+      <h1>🌺 Nossos Produtos</h1>
+      <p>Escolha entre flores frescas, buquês personalizados e kits para todas as ocasiões.</p>
+      <button id="btnCadastrarProduto" class="btn" style="display:none;">+ Cadastrar Produto</button>
+    </section>
+
+    <!-- Filtros e busca -->
+    <section class="filtros">
+      <input 
+        type="text" 
+        id="buscaProduto" 
+        placeholder="🔍 Buscar produto..."
+        class="input-busca"
+      >
+      <select id="filtroCategoria" class="select-filtro">
+        <option value="">Todas as categorias</option>
+        <option value="Buquês">Buquês</option>
+        <option value="Kits">Kits</option>
+        <option value="Flores Individuais">Flores Individuais</option>
+        <option value="Decoração">Decoração</option>
+      </select>
+    </section>
+
+    <!-- Lista de produtos -->
+    <section class="produtos-lista">
+      <div id="listaProdutos" class="products-grid">
+        <p style="text-align:center;">Carregando produtos...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    © 2025 Floricultura Encanto Verde — Todos os direitos reservados.
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="assets/js/auth.js" defer></script>
+  <script src="assets/js/produtos.js" defer></script>
+</body>
+</html>

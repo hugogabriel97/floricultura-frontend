@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin - Produtos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Admin — Gerenciar Produtos</h1>
+
+    <section class="card" style="margin-bottom:18px;">
+      <h3>Criar / Editar Produto</h3>
+      <form id="formProduto">
+        <input type="hidden" id="produtoId" />
+        
+        <div class="form-field">
+          <label>Nome</label>
+          <input id="nome" class="input" required />
+        </div>
+        
+        <div class="form-field">
+          <label>Descrição</label>
+          <textarea id="descricao" class="input"></textarea>
+        </div>
+        
+        <div class="form-field">
+          <label>Preço</label>
+          <input id="preco" type="number" step="0.01" class="input" required />
+        </div>
+        
+        <div class="form-field">
+          <label>Categoria</label>
+          <input id="categoria" class="input" />
+        </div>
+        
+        <div class="form-field">
+          <label>Quantidade em estoque</label>
+          <input id="quantidade" type="number" class="input" />
+        </div>
+        
+        <div class="form-field">
+          <label>Imagem do Produto</label>
+          <input id="imagem_produto" type="file" accept="image/*" />
+        </div>
+
+        <button class="btn" type="submit">Salvar</button>
+      </form>
+    </section>
+
+    <section>
+      <h3>Produtos Cadastrados</h3>
+      <div id="listaAdmin" class="products-grid"></div>
+    </section>
+  </main>
+
+  <script src="assets/js/admin_produtos.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Contato — Floricultura Encanto Verde</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="container header">
+    <div class="logo">🌷 Floricultura Encanto Verde</div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html" class="active">Contato</a>
+
+      <span id="usuarioLogado" class="usuario-logado" style="display:none;"></span>
+      <a href="login.html" id="linkLogin">Entrar</a>
+      <a href="registro.html" id="linkRegistro">Registrar</a>
+      <button id="btnLogout" class="btn-logout" style="display:none;">Sair</button>
+      <a href="carrinho.html" id="linkCarrinho" style="display:none;">🛒</a>
+    </nav>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="container" style="max-width:720px;">
+    <section class="card">
+      <h1>Entre em Contato</h1>
+      <p style="margin-bottom: 20px; color: #555;">
+        Tem alguma dúvida, sugestão ou quer fazer um pedido especial?  
+        Preencha o formulário abaixo e entraremos em contato o mais breve possível.
+      </p>
+
+      <form id="formContato" class="form-contato">
+        <div class="form-field">
+          <label for="nome">Nome</label>
+          <input id="nome" name="nome" class="input" required placeholder="Seu nome completo">
+        </div>
+
+        <div class="form-field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" class="input" required placeholder="seuemail@exemplo.com">
+        </div>
+
+        <div class="form-field">
+          <label for="assunto">Assunto</label>
+          <input id="assunto" name="assunto" class="input" placeholder="Ex: Pedido de flores">
+        </div>
+
+        <div class="form-field">
+          <label for="mensagem">Mensagem</label>
+          <textarea id="mensagem" name="mensagem" class="input" rows="6" required placeholder="Digite sua mensagem..."></textarea>
+        </div>
+
+        <button class="btn" type="submit">Enviar Mensagem</button>
+
+        <p id="statusMensagem" style="margin-top:10px; font-size:0.9rem; color:var(--accent-dark); display:none;">
+          Enviando...
+        </p>
+      </form>
+    </section>
+
+    <section class="card" style="margin-top:30px;">
+      <h2>Outros Canais</h2>
+      <p>📞 Telefone: (11) 99999-9999</p>
+      <p>📧 E-mail: atendimento@encantoverde.com.br</p>
+      <p>📍 Endereço: Rua das Flores, 123 — São Paulo/SP</p>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    © 2025 Floricultura Encanto Verde — Todos os direitos reservados.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/auth.js" defer></script>
+  <script src="assets/js/contato.js" defer></script>
+</body>
+</html>

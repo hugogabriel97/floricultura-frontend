@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Redefinir Senha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    body {
+      background: #f4f6f8;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    main.container {
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 380px;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #4CAF50;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .message {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Redefinir Senha</h1>
+
+    <form id="formRedefinirSenha">
+      <input type="password" id="novaSenha" placeholder="Nova senha" required>
+      <input type="password" id="confirmarSenha" placeholder="Confirmar nova senha" required>
+      <button type="submit">Atualizar Senha</button>
+    </form>
+
+    <div id="mensagem" class="message"></div>
+    <p><a href="login.html">Voltar ao login</a></p>
+  </main>
+
+  <script>
+    const form = document.getElementById('formRedefinirSenha');
+    const mensagem = document.getElementById('mensagem');
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (!token) {
+      exibirMensagem('Token de redefinição inválido ou ausente.', 'error');
+      form.style.display = 'none';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const novaSenha = document.getElementById('novaSenha').value.trim();
+      const confirmarSenha = document.getElementById('confirmarSenha').value.trim();
+
+      if (novaSenha.length < 6) return exibirMensagem('A senha deve ter pelo menos 6 caracteres.', 'error');
+      if (novaSenha !== confirmarSenha) return exibirMensagem('As senhas não coincidem.', 'error');
+
+      try {
+        const res = await fetch('http://localhost:3000/api/usuarios/redefinir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, novaSenha })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          exibirMensagem('✅ Senha redefinida com sucesso! Redirecionando...', 'success');
+          setTimeout(() => (window.location.href = 'login.html'), 2500);
+        } else {
+          exibirMensagem(data.error || 'Erro ao redefinir senha.', 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        exibirMensagem('Erro na comunicação com o servidor.', 'error');
+      }
+    });
+
+    function exibirMensagem(texto, tipo) {
+      mensagem.textContent = texto;
+      mensagem.className = `message ${tipo}`;
+      mensagem.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

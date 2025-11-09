@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Floricultura Encanto Verde</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonte moderna + ícones -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    /* ===== Melhorias visuais específicas da home ===== */
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, #f9fff8, #ffffff);
+      overflow-x: hidden;
+    }
+
+    /* HEADER com leve sombra */
+    header.header {
+      background-color: #ffffffcc;
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #f0f0f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 0;
+    }
+
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s;
+    }
+    .logo:hover {
+      transform: scale(1.03);
+    }
+
+    nav.nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    nav.nav a {
+      padding: 6px 10px;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    nav.nav a.active,
+    nav.nav a:hover {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    /* === Banner === */
+    .banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #f7fff2, #ffffff);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 40px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    .banner-texto {
+      flex: 1 1 350px;
+    }
+
+    .banner-texto h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .banner-texto p {
+      font-size: 1.05rem;
+      color: #555;
+      margin-bottom: 14px;
+    }
+
+    .banner-img {
+      flex: 1 1 320px;
+      border-radius: 16px;
+      max-width: 400px;
+      height: auto;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+    .banner-img:hover {
+      transform: scale(1.03);
+    }
+
+    /* === Produtos em destaque === */
+    .destaques {
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .destaques h2 {
+      font-size: 1.6rem;
+      margin-bottom: 24px;
+      color: var(--accent-dark);
+    }
+
+    /* === Cards com leve elevação === */
+    .product-card {
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* === Seção diferencial === */
+    .card {
+      text-align: center;
+      background-color: var(--card);
+      padding: 30px 20px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      margin-top: 50px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .card h2 {
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+    }
+
+    .card ul li {
+      font-size: 1rem;
+      margin: 8px 0;
+      color: #444;
+    }
+
+    /* === Footer === */
+    footer.footer {
+      background-color: #f8fff7;
+      border-top: 1px solid #eaeaea;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 60px;
+    }
+
+    /* === Grid de produtos em destaque === */
+.destaques-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  justify-items: center;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+/* === Card de produto === */
+.product-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  text-align: center;
+  width: 100%;
+  max-width: 240px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* === Imagem do produto === */
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+  background-color: #fafafa;
+}
+
+/* === Texto do produto === */
+.product-card h3 {
+  font-size: 1.05rem;
+  margin: 10px 0 4px;
+  color: #333;
+}
+
+.product-card p {
+  color: #4a934a;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Botão dentro do card */
+.product-card button {
+  background-color: var(--accent-dark);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+
+.product-card button:hover {
+  background-color: var(--accent);
+}
+
+    /* === Animações === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .banner {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+
+      .banner-img {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="container header">
+    <div class="logo">🌷 Floricultura <span style="color:var(--accent);">Encanto Verde</span></div>
+    <nav class="nav">
+      <a href="index.html" class="active">Home</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html">Contato</a>
+
+      <span id="usuarioLogado" class="usuario-logado" style="display:none;"></span>
+      <a href="login.html" id="linkLogin">Entrar</a>
+      <a href="registro.html" id="linkRegistro">Registrar</a>
+      <button id="btnLogout" class="btn-logout" style="display:none;">Sair</button>
+      <a href="carrinho.html" id="linkCarrinho" style="display:none;">🛒
+        <span id="contador-carrinho" class="contador-carrinho" style="display:none;">0</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="container">
+    <!-- Banner -->
+    <section class="banner">
+      <div class="banner-texto">
+        <h1>Bem-vindo à <span style="color:var(--accent-dark);">Encanto Verde</span></h1>
+        <p>Flores frescas, buquês encantadores e presentes especiais para tornar qualquer momento inesquecível.</p>
+        <p><strong>🌸 Promoção:</strong> Aproveite <b>10% OFF</b> em buquês selecionados!</p>
+        <a class="btn" href="produtos.html">Ver Produtos</a>
+      </div>
+      <img src="assets/img/banner.jpg" alt="Flores coloridas e promoções" class="banner-img">
+    </section>
+
+    <!-- Destaques -->
+    <section class="destaques">
+      <h2>🌼 Produtos em Destaque</h2>
+      <div id="destaques" class="products-grid">
+        <p>Carregando produtos...</p>
+      </div>
+    </section>
+
+    <!-- Diferenciais -->
+    <section class="card">
+      <h2>Por que escolher a Encanto Verde?</h2>
+      <ul>
+        <li>🌿 Flores sempre frescas, direto dos produtores.</li>
+        <li>🚚 Entrega rápida e segura em toda a região.</li>
+        <li>🎁 Personalização de buquês e kits especiais.</li>
+        <li>💚 Atendimento acolhedor e feito com amor.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    © 2025 Floricultura Encanto Verde — Todos os direitos reservados.
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="assets/js/auth.js" defer></script>
+  <script src="assets/js/index.js" defer></script>
+</body>
+</html>

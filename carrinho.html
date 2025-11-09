@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Carrinho — Floricultura Encanto Verde</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="container header">
+    <div class="logo">🌷 Floricultura Encanto Verde</div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html">Contato</a>
+      <a href="carrinho.html" id="linkCarrinho" style="display:none;">
+          🛒 <span id="contador-carrinho" class="contador-carrinho" style="display:none;">0</span>
+      </a>
+
+      <span id="usuarioLogado" class="usuario-logado" style="display:none;"></span>
+      <a href="login.html" id="linkLogin">Entrar</a>
+      <a href="registro.html" id="linkRegistro">Registrar</a>
+      <button id="btnLogout" class="btn-logout" style="display:none;">Sair</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>🛒 Meu Carrinho</h2>
+    <div id="carrinhoContainer" class="products-grid">
+      <p style="text-align:center;">Carregando itens do carrinho...</p>
+    </div>
+
+    <section id="resumoCarrinho" style="margin-top:20px; text-align:right;"></section>
+  </main>
+
+  <footer class="footer">
+    <div>© 2025 Floricultura Encanto Verde</div>
+  </footer>
+
+  <script src="assets/js/carrinho.js"></script>
+</body>
+</html>

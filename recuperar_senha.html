@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Recuperar Senha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    body {
+      background: #f7f9fb;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    main.container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 400px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #4CAF50;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    /* ======== MODAL ======== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .modal-content a {
+      color: #2196F3;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .modal-content button {
+      margin-top: 1.5rem;
+      background: #2196F3;
+    }
+
+    .modal-content button:hover {
+      background: #1976D2;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>Recuperar Senha</h1>
+    <form id="formRecuperarSenha">
+      <div class="form-field">
+        <label>Email cadastrado</label>
+        <input type="email" id="emailRecuperacao" required />
+      </div>
+      <button type="submit">Enviar link de recuperação</button>
+    </form>
+    <p><a href="login.html">Voltar ao Login</a></p>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal" id="modalRecuperacao">
+    <div class="modal-content">
+      <h2>🔗 Link de Recuperação</h2>
+      <p>Copie ou clique no link abaixo para redefinir sua senha:</p>
+      <p id="linkRecuperacaoBox"></p>
+      <button id="fecharModal">Fechar</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('formRecuperarSenha');
+    const modal = document.getElementById('modalRecuperacao');
+    const linkBox = document.getElementById('linkRecuperacaoBox');
+    const fecharModal = document.getElementById('fecharModal');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('emailRecuperacao').value.trim();
+
+      if (!email) return alert('Digite um e-mail válido.');
+
+      try {
+        const resposta = await fetch('http://localhost:3000/api/usuarios/recuperar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await resposta.json();
+
+        if (resposta.ok) {
+          linkBox.innerHTML = `<a href="${data.link}" target="_blank">${data.link}</a>`;
+          modal.style.display = 'flex';
+        } else {
+          alert(data.error || 'Erro ao solicitar recuperação.');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Erro na comunicação com o servidor.');
+      }
+    });
+
+    fecharModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

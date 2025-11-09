@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Login de Usuário | Floricultura Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    /* --- Estilos adicionais para melhorar o layout --- */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    main.container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .form-field {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .links {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+
+    .links a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Login</h1>
+
+    <form id="formLogin">
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail" required />
+      </div>
+
+      <div class="form-field">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha" required />
+      </div>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div class="links">
+      <a href="recuperar_senha.html">Esqueci minha senha</a>
+      <a href="registro.html">Criar conta</a>
+    </div>
+  </main>
+
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/login.js"></script>
+</body>
+</html>
