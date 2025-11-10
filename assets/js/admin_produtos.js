@@ -4,6 +4,7 @@
 
 (async function () {
   // 🔐 Garantir que é ADMIN
+  // (Esta verificação agora funciona, pois 'auth.js' foi carregado)
   const usuario = window.getUsuario();
   if (!usuario || usuario.tipoUsuario !== "admin") {
     window.toast("Acesso restrito a administradores.", "erro");
@@ -13,6 +14,7 @@
   const form = document.getElementById("formProduto");
   const lista = document.getElementById("listaAdmin");
   const inputId = document.getElementById("produtoId");
+  const btnSalvar = document.getElementById("btnSalvar"); // ✅ Botão de salvar
 
   // ===================================================
   // ✅ Carregar lista de produtos
@@ -29,10 +31,13 @@
         lista.innerHTML = "<p>Nenhum produto cadastrado.</p>";
         return;
       }
+      
+      // ✅ MELHORIA: Corrigir URL da imagem (apontar para o 'base' do backend)
+      const apiBaseSemApi = window.API_BASE.replace('/api', '');
 
       produtos.forEach((p) => {
         const img = p.imagemUrl
-          ? `${window.API_BASE}${p.imagemUrl}`.replace(/([^:]\/)\/+/g, "$1")
+          ? `${apiBaseSemApi}${p.imagemUrl}` // Ex: https://backend.com/uploads/img.png
           : "assets/img/placeholder.jpg";
 
         const card = document.createElement("div");
@@ -71,6 +76,7 @@
           const id = btn.dataset.del;
           if (!confirm("Excluir este produto?")) return;
           try {
+            // 'apiFetch' funciona para DELETE pois não envia 'body'
             await window.apiFetch(`/api/produtos/${id}`, {
               method: "DELETE",
             });
@@ -92,6 +98,7 @@
   // ===================================================
   async function carregarProdutoPorId(id) {
     try {
+      // 'apiFetch' funciona para GET
       const p = await window.apiFetch(`/api/produtos/${id}`, { method: "GET" });
 
       inputId.value = p.id;
@@ -100,6 +107,9 @@
       document.getElementById("preco").value = p.preco;
       document.getElementById("categoria").value = p.categoria || "";
       document.getElementById("quantidade").value = p.quantidadeEstoque || 0;
+      
+      // Limpa o campo de arquivo (não podemos pré-preencher)
+      document.getElementById("imagem_produto").value = "";
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -130,40 +140,64 @@
     fd.append("quantidadeEstoque", document.getElementById("quantidade").value);
 
     const imagemFile = document.getElementById("imagem_produto").files[0];
-    if (imagemFile) fd.append("imagem", imagemFile);
+    if (imagemFile) fd.append("imagem", imagemFile); // A 'key' deve ser "imagem" (igual no multer)
+
+    // ✅ MELHORIA: Desabilita botão para evitar cliques duplos
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = "Salvando...";
 
     try {
-      if (id) {
-        // ✅ editar
-        await window.apiFetch(`/api/produtos/${id}`, {
-          method: "PUT",
-          body: fd,
-          headers: {},
-        });
-        window.toast("Produto atualizado!", "sucesso");
-      } else {
-        // ✅ criar
-        await window.apiFetch(`/api/produtos`, {
-          method: "POST",
-          body: fd,
-          headers: {},
-        });
-        window.toast("Produto criado!", "sucesso");
-      }
+      // ✅ CORREÇÃO CRÍTICA:
+      // Não podemos usar 'window.apiFetch' para 'FormData' (upload de imagem)
+      // porque 'apiFetch' força 'Content-Type: application/json'.
+      // Devemos usar o 'fetch' nativo, sem 'Content-Type',
+      // para que o browser possa adicionar o 'multipart/form-data' e o 'boundary'.
 
+      const token = window.getToken(); // Pega o token do auth.js
+      const headers = {
+        'Authorization': `Bearer ${token}`
+        // NÃO ADICIONE 'Content-Type' AQUI!
+      };
+
+      const url = id ? `${window.API_BASE}/produtos/${id}` : `${window.API_BASE}/produtos`;
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method: method,
+        body: fd,
+        headers: headers
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        // Se a API retornar erro (ex: 400, 500), joga para o catch
+        throw new Error(data.message || 'Falha ao salvar produto');
+      }
+      
+      // Sucesso
+      window.toast(id ? "Produto atualizado!" : "Produto criado!", "sucesso");
       form.reset();
       inputId.value = "";
-      carregarProdutos();
+      carregarProdutos(); // Recarrega a lista
+
     } catch (err) {
       console.error("Erro ao salvar:", err);
       window.toast(err.message || "Erro ao salvar produto.", "erro");
+    } finally {
+      // Reabilita o botão
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = "Salvar";
     }
   });
 
   // ===================================================
   // ✅ Inicialização
   // ===================================================
-  window.addEventListener("DOMContentLoaded", () => {
-    carregarProdutos();
-  });
+  
+  // ✅ CORREÇÃO:
+  // O script é carregado no fim do <body>, então o DOM já está pronto.
+  // O 'DOMContentLoaded' listener não é necessário e não funciona.
+  // Apenas chame a função diretamente.
+  carregarProdutos();
+  
 })();
