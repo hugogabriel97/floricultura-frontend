@@ -33,6 +33,7 @@ async function carregarProdutos() {
       <p style="text-align:center;">Carregando produtos...</p>
     `;
 
+    // 1. Busca os produtos na API
     const produtos = await window.apiFetch("/api/produtos", { method: "GET" });
 
     // Padroniza possível variação de retorno do backend
@@ -51,17 +52,21 @@ async function carregarProdutos() {
       return;
     }
 
+    // 2. Renderiza cada produto na tela
     arr.forEach((produto) => {
       const card = document.createElement("div");
       card.className = "product-card";
 
-      // Corrige URL da imagem
+      // Corrige URL da imagem para apontar para o backend
+      // (Assume que window.API_BASE é 'https://backend.../api')
+      const apiBaseSemApi = window.API_BASE.replace('/api', '');
       const imgSrc = produto.imagemUrl
-        ? `${window.API_BASE}${produto.imagemUrl.replace(/^\/+/, "")}`
+        ? `${apiBaseSemApi}${produto.imagemUrl}` // Ex: https://backend.com/uploads/img.png
         : "assets/img/placeholder.jpg";
 
       const isAdmin = window.getUsuario()?.tipoUsuario === "admin";
 
+      // ✅ CORREÇÃO 3: Lógica do botão estava sendo ignorada
       const botao = isAdmin
         ? `
           <button class="btn-editar" onclick="editarProduto(${produto.id})">
@@ -74,19 +79,21 @@ async function carregarProdutos() {
           </button>
         `;
 
+      // ✅ CORREÇÃO 2: Variável 'p' trocada para 'produto'
       card.innerHTML = `
-        <img src="${imgSrc}" alt="${p.nome}" class="product-img">
+        <img src="${imgSrc}" alt="${produto.nome}" class="product-img">
         <div class="product-info">
-          <h3>${p.nome}</h3>
-          <p class="descricao">${p.descricao || ''}</p>
-          <p class="preco">R$ ${Number(p.preco).toFixed(2)}</p>
-          <a class="btn" href="produtos.html">Detalhes</a>
+          <h3>${produto.nome}</h3>
+          <p class="descricao">${produto.descricao || ''}</p>
+          <p class="preco">R$ ${Number(produto.preco).toFixed(2)}</p>
+          ${botao} 
         </div>
       `;
-
+      
       listaProdutos.appendChild(card);
     });
 
+    // 3. Adiciona os eventos de clique nos botões "Comprar"
     habilitarBotoesCarrinho();
 
   } catch (err) {
