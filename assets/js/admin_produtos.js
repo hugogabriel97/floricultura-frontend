@@ -14,7 +14,7 @@
   const form = document.getElementById("formProduto");
   const lista = document.getElementById("listaAdmin");
   const inputId = document.getElementById("produtoId");
-  const btnSalvar = document.getElementById("btnSalvar"); // ✅ Botão de salvar
+  const btnSalvar = document.getElementById("btnSalvar"); // Botão de salvar
 
   // ===================================================
   // ✅ Carregar lista de produtos
@@ -23,6 +23,7 @@
     try {
       lista.innerHTML = `<p style="text-align:center;">Carregando...</p>`;
 
+      // 'apiFetch' funciona para GET simples
       const produtos = await window.apiFetch("/api/produtos", { method: "GET" });
 
       lista.innerHTML = "";
@@ -32,7 +33,7 @@
         return;
       }
       
-      // ✅ MELHORIA: Corrigir URL da imagem (apontar para o 'base' do backend)
+      // Corrige URL da imagem (aponta para o 'base' do backend)
       const apiBaseSemApi = window.API_BASE.replace('/api', '');
 
       produtos.forEach((p) => {
@@ -76,12 +77,12 @@
           const id = btn.dataset.del;
           if (!confirm("Excluir este produto?")) return;
           try {
-            // 'apiFetch' funciona para DELETE pois não envia 'body'
+            // 'apiFetch' funciona para DELETE (sem body)
             await window.apiFetch(`/api/produtos/${id}`, {
               method: "DELETE",
             });
             window.toast("Produto removido!", "sucesso");
-            carregarProdutos();
+            carregarProdutos(); // Recarrega a lista
           } catch (err) {
             window.toast(err.message || "Erro ao excluir.", "erro");
           }
@@ -98,7 +99,6 @@
   // ===================================================
   async function carregarProdutoPorId(id) {
     try {
-      // 'apiFetch' funciona para GET
       const p = await window.apiFetch(`/api/produtos/${id}`, { method: "GET" });
 
       inputId.value = p.id;
@@ -107,9 +107,7 @@
       document.getElementById("preco").value = p.preco;
       document.getElementById("categoria").value = p.categoria || "";
       document.getElementById("quantidade").value = p.quantidadeEstoque || 0;
-      
-      // Limpa o campo de arquivo (não podemos pré-preencher)
-      document.getElementById("imagem_produto").value = "";
+      document.getElementById("imagem_produto").value = ""; // Limpa o campo de arquivo
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -132,6 +130,7 @@
       return window.toast("Nome e preço são obrigatórios.", "erro");
     }
 
+    // 1. Montar o FormData
     const fd = new FormData();
     fd.append("nome", nome);
     fd.append("preco", preco);
@@ -142,21 +141,20 @@
     const imagemFile = document.getElementById("imagem_produto").files[0];
     if (imagemFile) fd.append("imagem", imagemFile); // A 'key' deve ser "imagem" (igual no multer)
 
-    // ✅ MELHORIA: Desabilita botão para evitar cliques duplos
+    // Desabilita o botão
     btnSalvar.disabled = true;
     btnSalvar.textContent = "Salvando...";
 
     try {
-      // ✅ CORREÇÃO CRÍTICA:
+      // ✅ CORREÇÃO CRÍTICA (Bug #1):
       // Não podemos usar 'window.apiFetch' para 'FormData' (upload de imagem)
       // porque 'apiFetch' força 'Content-Type: application/json'.
-      // Devemos usar o 'fetch' nativo, sem 'Content-Type',
-      // para que o browser possa adicionar o 'multipart/form-data' e o 'boundary'.
+      // Devemos usar o 'fetch' nativo, sem 'Content-Type'.
 
       const token = window.getToken(); // Pega o token do auth.js
       const headers = {
         'Authorization': `Bearer ${token}`
-        // NÃO ADICIONE 'Content-Type' AQUI!
+        // NÃO ADICIONE 'Content-Type' AQUI! O browser faz isso.
       };
 
       const url = id ? `${window.API_BASE}/produtos/${id}` : `${window.API_BASE}/produtos`;
@@ -182,6 +180,7 @@
 
     } catch (err) {
       console.error("Erro ao salvar:", err);
+      // Exibe a mensagem de erro que vem do 'throw new Error'
       window.toast(err.message || "Erro ao salvar produto.", "erro");
     } finally {
       // Reabilita o botão
@@ -194,9 +193,9 @@
   // ✅ Inicialização
   // ===================================================
   
-  // ✅ CORREÇÃO:
-  // O script é carregado no fim do <body>, então o DOM já está pronto.
-  // O 'DOMContentLoaded' listener não é necessário e não funciona.
+  // ✅ CORREÇÃO (Bug #3):
+  // O script é carregado no fim do <body> (defer),
+  // então o DOM já está pronto.
   // Apenas chame a função diretamente.
   carregarProdutos();
   
