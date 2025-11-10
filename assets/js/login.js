@@ -1,6 +1,7 @@
 // assets/js/login.js
 (() => {
-  const API_BASE = 'floricultura-backend-production.up.railway.app' + '/api';
+  // ✅ AJUSTE FEITO: Adicionado "https://" no início da URL.
+  const API_BASE = 'https://floricultura-backend-production.up.railway.app' + '/api';
 
   function $(sel) { return document.querySelector(sel); }
   function toast(msg, type='sucesso') {
