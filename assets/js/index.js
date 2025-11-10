@@ -1,115 +1,43 @@
-// ===============================================
-// index.js — Página inicial com contador global
-// ===============================================
+// assets/js/index.js
 
-// Elementos do header
-const usuarioLogadoEl = document.getElementById('usuarioLogado');
-const btnLogout = document.getElementById('btnLogout');
-const linkLogin = document.getElementById('linkLogin');
-const linkRegistro = document.getElementById('linkRegistro');
-const contadorCarrinho = document.getElementById('contador-carrinho');
-
-let usuarioLogado = null;
-try {
-  usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-} catch {
-  usuarioLogado = null;
-}
-
-// ===============================
-// Atualizar Header e Sessão
-// ===============================
-function atualizarHeader() {
-  const token = localStorage.getItem('token');
-  usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-
-  if (token && usuarioLogado) {
-    usuarioLogadoEl.textContent = `Olá, ${usuarioLogado.nome}`;
-    usuarioLogadoEl.style.display = 'inline';
-    btnLogout.style.display = 'inline-block';
-    linkLogin.style.display = 'none';
-    linkRegistro.style.display = 'none';
-  } else {
-    usuarioLogadoEl.style.display = 'none';
-    btnLogout.style.display = 'none';
-    linkLogin.style.display = 'inline';
-    linkRegistro.style.display = 'inline';
-  }
-}
-
-// ===============================
-// Logout
-// ===============================
-btnLogout.addEventListener('click', () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('usuario');
-  atualizarHeader();
-  window.location.href = 'index.html';
-});
-
-// ===============================
-// Atualizar contador de carrinho
-// ===============================
-async function atualizarContadorCarrinho() {
-  if (!usuarioLogado) {
-    contadorCarrinho.style.display = 'none';
-    return;
-  }
-
-  try {
-    const res = await fetch(`http://localhost:3000/api/carrinho/${usuarioLogado.id}`);
-    if (!res.ok) throw new Error('Erro ao buscar carrinho');
-
-    const data = await res.json();
-    const itens = data?.data || [];
-    const total = itens.reduce((soma, item) => soma + (item.quantidade || 1), 0);
-
-    contadorCarrinho.textContent = total;
-    contadorCarrinho.style.display = total > 0 ? 'inline-block' : 'none';
-  } catch (err) {
-    console.error('Erro ao atualizar contador do carrinho:', err);
-  }
-}
-
-// ===============================
-// Carregar produtos em destaque
-// ===============================
 async function carregarDestaques() {
+  const destaquesContainer = document.getElementById('destaques');
+  if (!destaquesContainer) return;
+
   try {
-    const res = await fetch('http://localhost:3000/api/produtos');
-    if (!res.ok) throw new Error('Erro ao buscar produtos');
-    const produtos = await res.json();
+    const data = await window.apiFetch('/api/produtos', { method: 'GET' });
+    const produtos = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
 
-    const destaquesContainer = document.getElementById('destaques');
     destaquesContainer.innerHTML = '';
+    const itens = produtos.slice(0, 4);
 
-    produtos.slice(0, 4).forEach(produto => {
-      const imgSrc = produto.imagemUrl
-        ? `http://localhost:3000${produto.imagemUrl}`
-        : 'assets/img/placeholder.jpg';
+    if (!itens.length) {
+      destaquesContainer.innerHTML = '<p style="text-align:center;">Nenhum produto em destaque.</p>';
+      return;
+    }
 
-      const div = document.createElement('div');
-      div.classList.add('product-card');
-      div.innerHTML = `
-        <img src="${imgSrc}" alt="${produto.nome}" />
-        <h3>${produto.nome}</h3>
-        <p>R$ ${Number(produto.preco).toFixed(2)}</p>
+    itens.forEach((p) => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      const imgSrc = p.imagemUrl ? `${window.API_BASE}${p.imagemUrl}` : 'assets/img/placeholder.jpg';
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${p.nome}" class="product-img">
+        <div class="product-info">
+          <h3>${p.nome}</h3>
+          <p class="descricao">${p.descricao || ''}</p>
+          <p class="preco">R$ ${Number(p.preco).toFixed(2)}</p>
+          <a class="btn" href="produtos.html">Detalhes</a>
+        </div>
       `;
-      destaquesContainer.appendChild(div);
+      destaquesContainer.appendChild(card);
     });
   } catch (err) {
-    console.error('Erro ao carregar produtos:', err);
+    console.error('Erro ao carregar destaques:', err);
+    destaquesContainer.innerHTML = '<p style="color:red; text-align:center;">Erro ao carregar.</p>';
   }
 }
 
-// ===============================
-// Inicialização
-// ===============================
 window.addEventListener('DOMContentLoaded', () => {
-  atualizarHeader();
   carregarDestaques();
-  atualizarContadorCarrinho();
-
-  // Atualiza o contador de tempos em tempos (caso o usuário mude o carrinho em outra aba)
-  setInterval(atualizarContadorCarrinho, 5000);
+  // header + contador já são atualizados pelo auth.js
 });

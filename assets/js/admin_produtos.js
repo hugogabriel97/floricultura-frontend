@@ -1,99 +1,84 @@
-const formProduto = document.getElementById('formProduto');
-const listaAdmin = document.getElementById('listaAdmin');
-const produtoId = document.getElementById('produtoId');
-
-const API_URL = 'http://localhost:3000/api/produtos';
-
-// Função para listar produtos
-async function listarProdutos() {
-  try {
-    const res = await fetch(API_URL);
-    const produtos = await res.json();
-
-    listaAdmin.innerHTML = produtos.map(p => `
-      <div class="product-card">
-        <h4>${p.nome}</h4>
-        <p>${p.descricao || ''}</p>
-        <p>R$ ${parseFloat(p.preco).toFixed(2)}</p>
-        <p>Categoria: ${p.categoria || '—'}</p>
-        <p>Estoque: ${p.quantidadeEstoque}</p>
-        ${p.imagemUrl ? `<img src="http://localhost:3000${p.imagemUrl}" alt="${p.nome}" style="width:100px"/>` : ''}
-        <button onclick="editarProduto(${p.id})">Editar</button>
-        <button onclick="deletarProduto(${p.id})">Deletar</button>
-      </div>
-    `).join('');
-  } catch (error) {
-    console.error('Erro ao listar produtos:', error);
-  }
-}
-
-// Criar ou atualizar produto
-formProduto.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-  formData.append('nome', document.getElementById('nome').value);
-  formData.append('descricao', document.getElementById('descricao').value);
-  formData.append('preco', parseFloat(document.getElementById('preco').value));
-  formData.append('categoria', document.getElementById('categoria').value);
-  formData.append('quantidadeEstoque', parseInt(document.getElementById('quantidade').value));
-
-  const fileInput = document.getElementById('imagem_produto');
-  if (fileInput.files[0]) formData.append('imagem', fileInput.files[0]);
-
-  let url = API_URL;
-  let method = 'POST';
-  if (produtoId.value) {
-    url = `${API_URL}/${produtoId.value}`;
-    method = 'PUT';
+// assets/js/admin_produtos.js
+(async function () {
+  const usuario = window.getUsuario();
+  if (!usuario || usuario.tipoUsuario !== 'admin') {
+    window.toast('Acesso restrito a administradores.', 'erro');
+    return (window.location.href = 'index.html');
   }
 
-  try {
-    const res = await fetch(url, { method, body: formData });
-    const data = await res.json();
+  const form = document.getElementById('formAdminProduto');
+  const lista = document.getElementById('listaAdminProdutos');
 
-    if (!res.ok) {
-      alert(data.error || 'Erro ao salvar produto.');
-      return;
+  async function carregar() {
+    try {
+      const data = await window.apiFetch('/api/produtos', { method: 'GET' });
+      const produtos = Array.isArray(data) ? data : data?.data || [];
+      lista.innerHTML = '';
+      if (!produtos.length) {
+        lista.innerHTML = '<p>Nenhum produto.</p>';
+        return;
+      }
+      produtos.forEach((p) => {
+        const li = document.createElement('div');
+        li.className = 'product-card';
+        const img = p.imagemUrl ? `${window.API_BASE}${p.imagemUrl}` : 'assets/img/placeholder.jpg';
+        li.innerHTML = `
+          <img src="${img}" class="product-img" alt="${p.nome}">
+          <div class="product-info">
+            <h3>${p.nome}</h3>
+            <p>${p.descricao || ''}</p>
+            <p class="preco">R$ ${Number(p.preco).toFixed(2)}</p>
+            <button class="btn-editar" data-id="${p.id}">Editar</button>
+            <button class="btn" data-del="${p.id}">Excluir</button>
+          </div>`;
+        lista.appendChild(li);
+      });
+
+      // excluir
+      lista.querySelectorAll('[data-del]').forEach((btn) =>
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-del');
+          if (!confirm('Excluir este produto?')) return;
+          try {
+            await window.apiFetch(`/api/produtos/${id}`, { method: 'DELETE' });
+            window.toast('Excluído!', 'sucesso');
+            carregar();
+          } catch (err) {
+            window.toast(err.message || 'Erro ao excluir.', 'erro');
+          }
+        })
+      );
+    } catch (err) {
+      console.error(err);
+      lista.innerHTML = '<p style="color:red">Erro ao carregar.</p>';
     }
-
-    alert(data.message);
-    formProduto.reset();
-    produtoId.value = '';
-    listarProdutos(); // atualiza lista
-  } catch (error) {
-    console.error('Erro ao salvar produto:', error);
-    alert('Erro ao salvar produto.');
   }
-});
 
-// Preenche formulário para edição
-function editarProduto(id) {
-  const produtoCard = Array.from(listaAdmin.children)
-    .find(div => div.querySelector('button').onclick.toString().includes(id));
-  if (!produtoCard) return;
+  // criação simples sem upload (se usar upload multipart, adapte com FormData)
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('nome').value.trim();
+    const preco = document.getElementById('preco').value.trim();
+    if (!nome || !preco) return window.toast('Nome e preço são obrigatórios.', 'erro');
 
-  produtoId.value = id;
-  document.getElementById('nome').value = produtoCard.querySelector('h4').innerText;
-  document.getElementById('descricao').value = produtoCard.querySelectorAll('p')[0].innerText;
-  document.getElementById('preco').value = parseFloat(produtoCard.querySelectorAll('p')[1].innerText.replace('R$ ', ''));
-  document.getElementById('categoria').value = produtoCard.querySelectorAll('p')[2].innerText.replace('Categoria: ', '');
-  document.getElementById('quantidade').value = parseInt(produtoCard.querySelectorAll('p')[3].innerText.replace('Estoque: ', ''));
-}
+    try {
+      await window.apiFetch('/api/produtos', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome,
+          preco,
+          descricao: document.getElementById('descricao').value.trim(),
+          categoria: document.getElementById('categoria').value.trim(),
+          quantidadeEstoque: Number(document.getElementById('quantidadeEstoque').value) || 0,
+        }),
+      });
+      window.toast('Produto criado!', 'sucesso');
+      form.reset();
+      carregar();
+    } catch (err) {
+      window.toast(err.message || 'Erro ao criar.', 'erro');
+    }
+  });
 
-// Deletar produto
-async function deletarProduto(id) {
-  if (!confirm('Deseja realmente deletar este produto?')) return;
-  try {
-    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    alert(data.message);
-    listarProdutos();
-  } catch (error) {
-    console.error('Erro ao deletar produto:', error);
-    alert('Erro ao deletar produto.');
-  }
-}
-
-// Inicializa a lista
-listarProdutos();
+  window.addEventListener('DOMContentLoaded', carregar);
+})();

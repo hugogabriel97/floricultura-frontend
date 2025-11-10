@@ -1,26 +1,26 @@
+// assets/js/recuperar_senha.js
 const formRecuperar = document.getElementById('formRecuperarSenha');
 
-formRecuperar.addEventListener('submit', async (e) => {
+formRecuperar?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = document.getElementById('emailRecuperacao').value;
+  const email = document.getElementById('emailRecuperacao').value.trim();
+  if (!email) return toast('Informe um e-mail válido.', 'erro');
 
   try {
-    const res = await fetch('http://localhost:3000/api/usuarios/recuperar', {
+    const data = await window.apiFetch('/api/usuarios/recuperar', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email }),
     });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      alert('Verifique o console do servidor para o link de recuperação.');
-      console.log('Link de recuperação:', data.link);
-    } else {
-      alert(data.error || 'Erro ao solicitar recuperação.');
+    // Mostra o link no modal ou um alerta (simulado)
+    const link = (data?.data && data.data.link) || data.link;
+    if (link) {
+      console.log('Link de recuperação:', link);
+      alert('Link de recuperação gerado! (Veja o console do servidor ou este alerta)');
     }
-  } catch (error) {
-    console.error('Erro:', error);
-    alert('Falha ao enviar solicitação.');
+    toast('Se o e-mail existir, enviaremos instruções.', 'sucesso');
+  } catch (err) {
+    console.error(err);
+    toast(err.message || 'Erro ao solicitar recuperação.', 'erro');
   }
 });

@@ -1,30 +1,30 @@
+// assets/js/registro.js
 const formRegistro = document.getElementById('formRegistro');
 
-formRegistro.addEventListener('submit', async (e) => {
+formRegistro?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const nome = document.getElementById('nome').value;
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
+  const nome = document.getElementById('nome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
+
+  if (!nome || !email || !senha) return toast('Preencha nome, e-mail e senha.', 'erro');
 
   try {
-    const res = await fetch('http://localhost:3000/api/usuarios/registro', {
+    const data = await window.apiFetch('/api/usuarios/registro', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, email, senha })
+      body: JSON.stringify({ nome, email, senha }),
     });
 
-    const data = await res.json();
+    const payload = data?.data || data;
+    window.setToken(payload.token);
+    window.setUsuario(payload.usuario);
 
-    if (res.ok) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('usuario', JSON.stringify(data.usuario));
-      window.location.href = 'index.html';
-    } else {
-      alert(data.error || 'Erro ao criar conta');
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-    alert('Erro ao criar conta!');
+    toast('Conta criada com sucesso!', 'sucesso');
+    window.atualizarHeaderUI();
+    setTimeout(() => (window.location.href = 'index.html'), 800);
+  } catch (err) {
+    console.error(err);
+    toast(err.message || 'Erro ao criar conta.', 'erro');
   }
 });

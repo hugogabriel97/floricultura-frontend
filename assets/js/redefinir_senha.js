@@ -1,28 +1,28 @@
-// frontend/assets/js/redefinir_senha.js
+// assets/js/redefinir_senha.js
 const formRedefinir = document.getElementById('formRedefinirSenha');
 const urlParams = new URLSearchParams(window.location.search);
 const token = urlParams.get('token');
 
-formRedefinir.addEventListener('submit', async (e) => {
+formRedefinir?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const novaSenha = document.getElementById('novaSenha').value.trim();
+
+  const novaSenha = document.getElementById('novaSenha')?.value.trim();
+  const confirmarSenha = document.getElementById('confirmarSenha')?.value?.trim();
+
+  if (!novaSenha || novaSenha.length < 6) return toast('A senha deve ter ao menos 6 caracteres.', 'erro');
+  if (confirmarSenha !== undefined && novaSenha !== confirmarSenha) return toast('As senhas não coincidem.', 'erro');
+  if (!token) return toast('Token ausente ou inválido.', 'erro');
 
   try {
-    const res = await fetch('http://localhost:3000/api/usuarios/redefinir', {
+    await window.apiFetch('/api/usuarios/redefinir', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, novaSenha })
+      body: JSON.stringify({ token, novaSenha }),
     });
 
-    const data = await res.json();
-    if (res.ok) {
-      alert('Senha redefinida com sucesso!');
-      window.location.href = 'login.html';
-    } else {
-      alert(data.error || 'Erro ao redefinir senha.');
-    }
+    toast('Senha redefinida com sucesso!', 'sucesso');
+    setTimeout(() => (window.location.href = 'login.html'), 1000);
   } catch (err) {
-    console.error('Erro:', err);
-    alert('Falha ao redefinir senha.');
+    console.error(err);
+    toast(err.message || 'Erro ao redefinir senha.', 'erro');
   }
 });
