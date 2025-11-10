@@ -58,7 +58,13 @@
       font-size: 1rem;
     }
 
-    button:hover {
+    /* ✅ MELHORIA: Estilo do botão desabilitado */
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
       background: #45a049;
     }
 
@@ -90,7 +96,7 @@
     <form id="formRedefinirSenha">
       <input type="password" id="novaSenha" placeholder="Nova senha" required>
       <input type="password" id="confirmarSenha" placeholder="Confirmar nova senha" required>
-      <button type="submit">Atualizar Senha</button>
+      <button type"submit" id="btnSubmit">Atualizar Senha</button>
     </form>
 
     <div id="mensagem" class="message"></div>
@@ -98,8 +104,12 @@
   </main>
 
   <script>
+    // ✅ AJUSTE 1: Adicionar a URL correta da API do backend
+    const API_BASE = 'https://floricultura-backend-production.up.railway.app/api';
+    
     const form = document.getElementById('formRedefinirSenha');
     const mensagem = document.getElementById('mensagem');
+    const submitBtn = document.getElementById('btnSubmit'); // ✅ MELHORIA
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
@@ -113,11 +123,19 @@
       const novaSenha = document.getElementById('novaSenha').value.trim();
       const confirmarSenha = document.getElementById('confirmarSenha').value.trim();
 
+      // Limpa mensagens de erro anteriores
+      exibirMensagem('', 'error', false);
+
       if (novaSenha.length < 6) return exibirMensagem('A senha deve ter pelo menos 6 caracteres.', 'error');
       if (novaSenha !== confirmarSenha) return exibirMensagem('As senhas não coincidem.', 'error');
 
+      // ✅ MELHORIA: Desabilitar botão
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Atualizando...';
+
       try {
-        const res = await fetch('http://localhost:3000/api/usuarios/redefinir', {
+        // ✅ AJUSTE 2: Usar a variável API_BASE na URL
+        const res = await fetch(`${API_BASE}/usuarios/redefinir`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, novaSenha })
@@ -126,20 +144,26 @@
         const data = await res.json();
         if (res.ok) {
           exibirMensagem('✅ Senha redefinida com sucesso! Redirecionando...', 'success');
+          form.style.display = 'none'; // Esconde o formulário
           setTimeout(() => (window.location.href = 'login.html'), 2500);
         } else {
-          exibirMensagem(data.error || 'Erro ao redefinir senha.', 'error');
+          // ✅ AJUSTE 3: Usar data.message (da sua API) em vez de data.error
+          exibirMensagem(data.message || 'Erro ao redefinir senha.', 'error');
         }
       } catch (error) {
         console.error(error);
         exibirMensagem('Erro na comunicação com o servidor.', 'error');
       }
+      
+      // ✅ MELHORIA: Reabilitar botão se falhar
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Atualizar Senha';
     });
 
-    function exibirMensagem(texto, tipo) {
+    function exibirMensagem(texto, tipo, mostrar = true) {
       mensagem.textContent = texto;
       mensagem.className = `message ${tipo}`;
-      mensagem.style.display = 'block';
+      mensagem.style.display = mostrar ? 'block' : 'none';
     }
   </script>
 </body>
