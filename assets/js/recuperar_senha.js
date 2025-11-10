@@ -1,6 +1,6 @@
 // assets/js/recuperar_senha.js
 (() => {
-  const API_BASE = 'floricultura-backend-production.up.railway.app' + '/api';
+  const API_BASE = 'https://floricultura-backend-production.up.railway.app' + '/api';
 
   function $(s){ return document.querySelector(s); }
   function toast(msg, type='sucesso'){
