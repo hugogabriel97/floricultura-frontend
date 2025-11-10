@@ -44,8 +44,14 @@
       cursor: pointer;
       transition: background 0.3s;
     }
+    
+    /* Estilo do botão desabilitado */
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background: #45a049;
     }
 
@@ -87,6 +93,29 @@
     .modal-content button:hover {
       background: #1976D2;
     }
+    
+    /* ======== TOAST ======== */
+    /* (Copiado de login.js/style.css para consistência) */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease, top 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      top: 30px;
+    }
+    .toast.sucesso { background-color: #4CAF50; }
+    .toast.erro { background-color: #f44336; }
+    
   </style>
 </head>
 
@@ -98,35 +127,55 @@
         <label>Email cadastrado</label>
         <input type="email" id="emailRecuperacao" required />
       </div>
-      <button type="submit">Enviar link de recuperação</button>
+      <button type="submit" id="btnRecuperar">Enviar link de recuperação</button>
     </form>
     <p><a href="login.html">Voltar ao Login</a></p>
   </main>
 
-  <!-- MODAL -->
   <div class="modal" id="modalRecuperacao">
     <div class="modal-content">
       <h2>🔗 Link de Recuperação</h2>
+      <p>Um link de recuperação (simulado) foi gerado. Em um app real, ele seria enviado ao seu e-mail.</p>
       <p>Copie ou clique no link abaixo para redefinir sua senha:</p>
-      <p id="linkRecuperacaoBox"></p>
+      <p id="linkRecuperacaoBox" style="font-weight: bold;"></p>
       <button id="fecharModal">Fechar</button>
     </div>
   </div>
 
   <script>
+    // ✅ AJUSTE FEITO: Adicionada a URL correta do backend
+    const API_BASE = 'https://floricultura-backend-production.up.railway.app/api';
+
     const form = document.getElementById('formRecuperarSenha');
+    const emailInput = document.getElementById('emailRecuperacao');
+    const submitBtn = document.getElementById('btnRecuperar');
+    
     const modal = document.getElementById('modalRecuperacao');
     const linkBox = document.getElementById('linkRecuperacaoBox');
     const fecharModal = document.getElementById('fecharModal');
 
+    // ✅ AJUSTE FEITO: Adicionada a função toast()
+    function toast(msg, type='sucesso') {
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(()=>t.classList.add('show'), 50);
+      setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 3000);
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('emailRecuperacao').value.trim();
+      const email = emailInput.value.trim();
 
-      if (!email) return alert('Digite um e-mail válido.');
+      if (!email) return toast('Digite um e-mail válido.', 'erro');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
 
       try {
-        const resposta = await fetch('http://localhost:3000/api/usuarios/recuperar', {
+        // ✅ AJUSTE FEITO: URL corrigida para usar a API_BASE
+        const resposta = await fetch(`${API_BASE}/usuarios/recuperar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
@@ -134,16 +183,22 @@
 
         const data = await resposta.json();
 
-        if (resposta.ok) {
-          linkBox.innerHTML = `<a href="${data.link}" target="_blank">${data.link}</a>`;
+        if (resposta.ok && data.success) {
+          // Mostra o link no modal
+          linkBox.innerHTML = `<a href="${data.data.link}" target="_blank">${data.data.link}</a>`;
           modal.style.display = 'flex';
+          toast('Link de recuperação gerado!', 'sucesso');
         } else {
-          alert(data.error || 'Erro ao solicitar recuperação.');
+          // ✅ AJUSTE FEITO: Corrigido de data.error para data.message
+          toast(data.message || 'Erro ao solicitar recuperação.', 'erro');
         }
       } catch (error) {
         console.error(error);
-        alert('Erro na comunicação com o servidor.');
+        toast('Erro na comunicação com o servidor.', 'erro');
       }
+      
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar link de recuperação';
     });
 
     fecharModal.addEventListener('click', () => {
