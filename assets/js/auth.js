@@ -16,7 +16,7 @@
           // Ex.: backend: https://floricultura-backend.up.railway.app
           //      frontend: https://floricultura-frontend.up.railway.app
           // Se forem apps no Railway, você provavelmente tem um domínio diferente. Ajuste abaixo se necessário:
-          return 'https://floricultura-frontend-production.up.railway.app/';
+          return 'floricultura-backend-production.up.railway.app/';
         })());
 
   // Exponha para outras páginas (caso precise)

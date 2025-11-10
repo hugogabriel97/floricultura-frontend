@@ -1,6 +1,6 @@
 // assets/js/registro.js
 (() => {
-  const API_BASE = (window.__API_BASE__ || window.location.origin) + '/api';
+  const API_BASE = 'floricultura-backend-production.up.railway.app' + '/api';
 
   function $(sel){ return document.querySelector(sel); }
   function toast(msg, type='sucesso'){
