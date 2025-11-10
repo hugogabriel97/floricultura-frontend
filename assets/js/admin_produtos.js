@@ -23,7 +23,7 @@
     try {
       lista.innerHTML = `<p style="text-align:center;">Carregando...</p>`;
 
-      // 'apiFetch' funciona para GET simples
+      // 'apiFetch' funciona para GET simples e já usa a URL base correta
       const produtos = await window.apiFetch("/api/produtos", { method: "GET" });
 
       lista.innerHTML = "";
@@ -33,7 +33,7 @@
         return;
       }
       
-      // Corrige URL da imagem (aponta para o 'base' do backend)
+      // Corrige URL da imagem (aponta para o 'base' do backend, sem o /api)
       const apiBaseSemApi = window.API_BASE.replace('/api', '');
 
       produtos.forEach((p) => {
@@ -77,7 +77,7 @@
           const id = btn.dataset.del;
           if (!confirm("Excluir este produto?")) return;
           try {
-            // 'apiFetch' funciona para DELETE (sem body)
+            // 'apiFetch' funciona para DELETE
             await window.apiFetch(`/api/produtos/${id}`, {
               method: "DELETE",
             });
@@ -139,25 +139,28 @@
     fd.append("quantidadeEstoque", document.getElementById("quantidade").value);
 
     const imagemFile = document.getElementById("imagem_produto").files[0];
-    if (imagemFile) fd.append("imagem", imagemFile); // A 'key' deve ser "imagem" (igual no multer)
+    if (imagemFile) fd.append("imagem", imagemFile);
 
     // Desabilita o botão
     btnSalvar.disabled = true;
     btnSalvar.textContent = "Salvando...";
 
     try {
-      // ✅ CORREÇÃO CRÍTICA (Bug #1):
-      // Não podemos usar 'window.apiFetch' para 'FormData' (upload de imagem)
-      // porque 'apiFetch' força 'Content-Type: application/json'.
-      // Devemos usar o 'fetch' nativo, sem 'Content-Type'.
-
-      const token = window.getToken(); // Pega o token do auth.js
+      // O 'fetch' nativo é necessário para FormData
+      const token = window.getToken();
       const headers = {
         'Authorization': `Bearer ${token}`
-        // NÃO ADICIONE 'Content-Type' AQUI! O browser faz isso.
+        // Sem 'Content-Type'
       };
 
-      const url = id ? `${window.API_BASE}/produtos/${id}` : `${window.API_BASE}/produtos`;
+      // ✅ CORREÇÃO CRÍTICA:
+      // O '/api/' estava faltando na URL do 'fetch' nativo.
+      // (window.API_BASE não inclui o /api, mas window.apiFetch sim)
+      // Esta URL agora está correta.
+      const url = id 
+        ? `${window.API_BASE}/api/produtos/${id}` 
+        : `${window.API_BASE}/api/produtos`;
+
       const method = id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -192,11 +195,6 @@
   // ===================================================
   // ✅ Inicialização
   // ===================================================
-  
-  // ✅ CORREÇÃO (Bug #3):
-  // O script é carregado no fim do <body> (defer),
-  // então o DOM já está pronto.
-  // Apenas chame a função diretamente.
   carregarProdutos();
   
 })();
